@@ -125,7 +125,7 @@
     (run-tests)))
 
 (defn reload-and-test
-  [tracker {:keys [on-start test-matcher parallel? report selectors namespaces]
+  [tracker {:keys [on-start test-matcher parallel? report selectors namespaces randomize]
             :or {report :progress
                  test-matcher #".*test"}
             :as opts}]
@@ -161,7 +161,8 @@
          (runner/run-tests
            (->> (runner/find-tests test-namespaces)
                 (selectors-match selectors)
-                (filter (resolve-hook (:filter opts))))
+                (filter (resolve-hook (:filter opts)))
+                (cond-> randomize shuffle))
            (-> opts
                (dissoc :parallel? :on-start :on-end :filter :test-matcher :selectors)
                (assoc :multithread? parallel?
